@@ -42,7 +42,6 @@ def main():
             2,
         )
 
-        # Draw landmark points.
         height, width = frame.shape[:2]
 
         for face_landmarks in result.face_landmarks:

@@ -15,25 +15,13 @@ class FeatureExtractor:
     - Head Pose (Yaw, Pitch, Roll)
     """
 
-    # =========================================================
-    # EAR LANDMARKS
-    # =========================================================
-
     LEFT_EYE = [33, 160, 158, 133, 153, 144]
     RIGHT_EYE = [362, 385, 387, 263, 373, 380]
-
-    # =========================================================
-    # MAR LANDMARKS
-    # =========================================================
 
     MOUTH_LEFT = 61
     MOUTH_RIGHT = 291
     UPPER_LIP = 13
     LOWER_LIP = 14
-
-    # =========================================================
-    # HEAD POSE LANDMARKS
-    # =========================================================
 
     NOSE_TIP = 1
     CHIN = 152
@@ -42,9 +30,6 @@ class FeatureExtractor:
     MOUTH_LEFT_CORNER = 61
     MOUTH_RIGHT_CORNER = 291
 
-    # =========================================================
-    # EAR
-    # =========================================================
 
     def calculate_ear(self, landmarks, eye_indices):
         """
@@ -96,9 +81,7 @@ class FeatureExtractor:
             "average_ear": average_ear,
         }
 
-    # =========================================================
-    # MAR
-    # =========================================================
+
 
     def calculate_mar(self, landmarks):
         """
@@ -142,9 +125,7 @@ class FeatureExtractor:
             "mar": mar,
         }
 
-    # =========================================================
-    # HEAD POSE
-    # =========================================================
+
 
     def calculate_head_pose(
         self,
@@ -164,9 +145,7 @@ class FeatureExtractor:
             }
         """
 
-        # -----------------------------------------------------
-        # Convert MediaPipe landmarks to 2D image points
-        # -----------------------------------------------------
+
 
         image_points = np.array(
             [
@@ -209,9 +188,7 @@ class FeatureExtractor:
             dtype=np.float64,
         )
 
-        # -----------------------------------------------------
-        # Approximate 3D face model
-        # -----------------------------------------------------
+
 
         model_points = np.array(
             [
@@ -225,9 +202,6 @@ class FeatureExtractor:
             dtype=np.float64,
         )
 
-        # -----------------------------------------------------
-        # Approximate camera matrix
-        # -----------------------------------------------------
 
         focal_length = float(frame_width)
 
@@ -252,15 +226,12 @@ class FeatureExtractor:
             dtype=np.float64,
         )
 
-        # Assume webcam lens distortion is negligible.
+  
         distortion_coefficients = np.zeros(
             (4, 1),
             dtype=np.float64,
         )
 
-        # -----------------------------------------------------
-        # Solve head pose
-        # -----------------------------------------------------
 
         success, rotation_vector, translation_vector = (
             cv2.solvePnP(
@@ -279,19 +250,18 @@ class FeatureExtractor:
                 "roll": 0.0,
             }
 
-        # Convert rotation vector to rotation matrix.
+      
         rotation_matrix, _ = cv2.Rodrigues(
             rotation_vector
         )
 
-        # Extract Euler angles.
+  
         angles, _, _, _, _, _ = cv2.RQDecomp3x3(
             rotation_matrix
         )
 
-        # -----------------------------------------------------
-        # Normalize angles
-        # -----------------------------------------------------
+
+ 
 
         pitch = self._normalize_angle(
             float(angles[0])
@@ -310,10 +280,6 @@ class FeatureExtractor:
             "pitch": pitch,
             "roll": roll,
         }
-
-    # =========================================================
-    # HELPERS
-    # =========================================================
 
     @staticmethod
     def _normalize_angle(angle):
