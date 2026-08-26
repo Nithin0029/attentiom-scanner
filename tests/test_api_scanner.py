@@ -267,10 +267,46 @@ def run_tests():
 
         print_pass(12, "FastAPI application is available.")
 
+        # ----------------------------------------------------
+        # Test 13: CORS preflight OPTIONS request for http://localhost:5173.
+        # ----------------------------------------------------
+        options_res = client.options(
+            "/api/scanner/start",
+            headers={
+                "Origin": "http://localhost:5173",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+
+        assert options_res.status_code == 200
+        assert options_res.headers.get("access-control-allow-origin") == "http://localhost:5173"
+        assert "POST" in options_res.headers.get("access-control-allow-methods", "")
+
+        print_pass(13, "CORS preflight OPTIONS request succeeds for http://localhost:5173.")
+
+        # ----------------------------------------------------
+        # Test 14: CORS preflight OPTIONS request for http://127.0.0.1:5173.
+        # ----------------------------------------------------
+        options_res_ip = client.options(
+            "/api/scanner/start",
+            headers={
+                "Origin": "http://127.0.0.1:5173",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+
+        assert options_res_ip.status_code == 200
+        assert options_res_ip.headers.get("access-control-allow-origin") == "http://127.0.0.1:5173"
+
+        print_pass(14, "CORS preflight OPTIONS request succeeds for http://127.0.0.1:5173.")
+
     print()
     print("=" * 60)
     print("ALL API SCANNER TESTS PASSED")
     print("=" * 60)
+
 
 
 if __name__ == "__main__":

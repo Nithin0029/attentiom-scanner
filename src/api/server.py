@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.scanner_service import ScannerService
 
@@ -13,6 +14,22 @@ app = FastAPI(
     description="Web API for the real-time attention scanner.",
     version="1.0.0",
 )
+
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 scanner_service = ScannerService()

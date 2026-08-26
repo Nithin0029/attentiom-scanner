@@ -56,3 +56,9 @@ output.json
 reports/*.json
 reports/*.csv
 !reports/README.md
+
+# Frontend dependencies
+frontend/node_modules/
+
+# Frontend build output
+frontend/dist/
