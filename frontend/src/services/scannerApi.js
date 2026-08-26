@@ -1,57 +1,97 @@
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const BASE_URL = "http://127.0.0.1:8000";
 
-async function request(endpoint, options = {}) {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        headers: {
-            "Content-Type": "application/json",
-            ...(options.headers || {}),
-        },
-    });
+async function request(path, options = {}) {
+    let response;
 
-    const data = await response.json();
+    try {
+        response = await fetch(`${BASE_URL}${path}`, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                ...(options.headers || {}),
+            },
+        });
+    } catch (networkError) {
+        throw new Error(
+            "Cannot reach the backend server. Make sure it is running."
+        );
+    }
+
+    let data = null;
+
+    try {
+        data = await response.json();
+    } catch (parseError) {
+        data = null;
+    }
 
     if (!response.ok) {
-        throw new Error(data.detail || `Request failed with status ${response.status}`);
+        const detail =
+            data && data.detail
+                ? data.detail
+                : `Request failed with status ${response.status}.`;
+
+        throw new Error(detail);
     }
 
     return data;
 }
 
+export async function getHealth() {
+    return request("/health");
+}
+
 export async function startScanner() {
-    return request("/scanner/start", {
+    return request("/api/scanner/start", {
         method: "POST",
     });
 }
 
 export async function stopScanner() {
-    return request("/scanner/stop", {
+    return request("/api/scanner/stop", {
         method: "POST",
     });
 }
 
 export async function getScannerStatus() {
-    return request("/scanner/status");
+    return request("/api/scanner/status");
 }
 
 export async function getScannerSummary() {
-    return request("/scanner/summary");
+    return request("/api/scanner/summary");
 }
 
 export async function sendFrame(frameBlob) {
     const formData = new FormData();
     formData.append("file", frameBlob, "frame.jpg");
 
-    const response = await fetch(`${API_BASE_URL}/scanner/frame`, {
-        method: "POST",
-        body: formData,
-    });
+    let response;
 
-    const data = await response.json();
+    try {
+        response = await fetch(`${BASE_URL}/api/scanner/frame`, {
+            method: "POST",
+            body: formData,
+        });
+    } catch (networkError) {
+        throw new Error("Cannot reach the backend server.");
+    }
+
+    let data = null;
+
+    try {
+        data = await response.json();
+    } catch (parseError) {
+        data = null;
+    }
 
     if (!response.ok) {
-        throw new Error(data.detail || `Frame upload failed with status ${response.status}`);
+        const detail =
+            data && data.detail
+                ? data.detail
+                : `Frame upload failed with status ${response.status}.`;
+
+        throw new Error(detail);
     }
 
     return data;
-}
+}
